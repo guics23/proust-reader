@@ -1,0 +1,14 @@
+# Python environment (recreate with `uv sync`)
+.venv/
+__pycache__/
+*.pyc
+
+# Pipeline intermediates that are large and fully regenerable:
+# embeddings (~30 MB per volume, recomputed by `align`) and the segmented
+# text (recomputed in seconds by `chapters`). The align/*.tsv tables and
+# review.tsv are kept: they're the readable record of each alignment and
+# show in diffs what an anchor or segmentation change actually did.
+work/*/cache/
+work/*/sentences.json
+
+.DS_Store

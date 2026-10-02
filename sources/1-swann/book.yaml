@@ -1,0 +1,30 @@
+# Volume definition. See PREPARING.md for the meaning of each field.
+id: 1-swann
+order: 1
+author: Marcel Proust
+translator: C. K. Scott Moncrieff
+title:
+  fr: Du côté de chez Swann
+  en: Swann's Way
+
+# Languages in display order: the first one goes in the top half.
+languages: [fr, en]
+
+sources:
+  fr: fr.txt
+  en: en.txt
+
+# One entry per chapter, in order. `start` is a regular expression (multi-line
+# mode, so ^ and $ match line boundaries) for the heading that opens the
+# chapter; the chapter body starts right after the match and runs until the
+# next chapter's heading. Headings are searched in order, each one after the
+# previous; `nth: 2` skips the first match (e.g. a table of contents).
+chapters:
+  - fr: { title: "Combray I", start: '^PREMIÈRE PARTIE\s+COMBRAY\s+I\.$' }
+    en: { title: "Overture", start: '^OVERTURE$', nth: 2 }
+  - fr: { title: "Combray II", start: '^II\.$' }
+    en: { title: "Combray", start: '^COMBRAY$' }
+  - fr: { title: "Un amour de Swann", start: '^DEUXIÈME PARTIE\s+UN AMOUR DE SWANN$' }
+    en: { title: "Swann in Love", start: '^SWANN IN LOVE$' }
+  - fr: { title: "Noms de pays : le nom", start: '^TROISIÈME PARTIE\s+NOMS DE PAYS: LE NOM$' }
+    en: { title: "Place-Names: The Name", start: '^PLACE-NAMES: THE NAME$' }

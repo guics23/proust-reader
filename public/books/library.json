@@ -1,0 +1,14 @@
+[
+ {
+  "id": "1-swann",
+  "order": 1,
+  "title": {
+   "fr": "Du côté de chez Swann",
+   "en": "Swann's Way"
+  },
+  "author": "Marcel Proust",
+  "file": "1-swann.json",
+  "pages": 3601,
+  "version": 1790940989
+ }
+]
