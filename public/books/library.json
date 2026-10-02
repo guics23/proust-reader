@@ -10,5 +10,17 @@
   "file": "1-swann.json",
   "pages": 3601,
   "version": 1790940989
+ },
+ {
+  "id": "2-jeunes-filles",
+  "order": 2,
+  "title": {
+   "fr": "À l'ombre des jeunes filles en fleurs",
+   "en": "Within a Budding Grove"
+  },
+  "author": "Marcel Proust",
+  "file": "2-jeunes-filles.json",
+  "pages": 4756,
+  "version": 1790945594
  }
 ]

@@ -6,7 +6,8 @@ from pathlib import Path
 
 import yaml
 
-from .text import PrepError, Segmenter, segment_chapter, split_chapters, strip_gutenberg
+from .text import (PrepError, Segmenter, remove_patterns, segment_chapter, split_chapters,
+                   strip_gutenberg)
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCES = ROOT / "sources"
@@ -62,8 +63,14 @@ def step_chapters(vol: Volume):
     specs = vol.cfg["chapters"]
     per_lang = {}
     for lang in vol.langs:
-        raw = (vol.src / vol.cfg["sources"][lang]).read_text(encoding="utf-8")
-        bodies = split_chapters(strip_gutenberg(raw), [c[lang] for c in specs], lang)
+        # A language's source may be one file or a list of files (a volume
+        # Gutenberg publishes in several ebooks), joined in order.
+        files = vol.cfg["sources"][lang]
+        files = [files] if isinstance(files, str) else files
+        text = "\n\n".join(strip_gutenberg((vol.src / f).read_text(encoding="utf-8"))
+                           for f in files)
+        text = remove_patterns(text, vol.cfg.get("remove", {}).get(lang, []))
+        bodies = split_chapters(text, [c[lang] for c in specs], lang)
         seg = Segmenter(lang)
         per_lang[lang] = [segment_chapter(b, lang, seg) for b in bodies]
 

@@ -35,6 +35,17 @@ as `sources/<id>/fr.txt` and `sources/<id>/en.txt`. Use a short id that sorts
 well, like `2-jeunes-filles`. The Gutenberg header and licence are stripped
 automatically.
 
+Check the `Title:` line at the top of each file: both must be the same volume.
+Gutenberg sometimes splits one volume into several ebooks (the French *À
+l'ombre des jeunes filles en fleurs* comes in parts). Save each part as its own
+file and list them in order in `book.yaml`:
+
+```yaml
+sources:
+  fr: [fr-1.txt, fr-2.txt, fr-3.txt]
+  en: en.txt
+```
+
 ## 2. Write `book.yaml`
 
 Copy `sources/1-swann/book.yaml` and edit it. The only part that takes thought
@@ -56,6 +67,20 @@ chapters:
   dedication) is dropped.
 - The two languages must have the same chapters. If the translation merges or
   splits chapters, follow the coarser division in both.
+- `start: '\A'` means "the beginning of the text" (for a first chapter with no
+  heading).
+- If one edition has no headings where the other has them (the French
+  Gutenberg *Jeunes filles* has none), match the chapter's first words instead
+  and add `include: true`, so they stay in the text instead of being cut off as
+  a heading:
+  `{ title: "…", start: '^Le médecin de Balbec appelé', include: true }`.
+  Separator lines like `^\*  \*  \*$` also work as starts.
+
+Text that shouldn't be read at all, such as the title block Gutenberg repeats at
+the top of each part of a split volume or a final "THE END", goes in a
+`remove:` list of patterns per language, applied before the chapter split
+(see `sources/2-jeunes-filles/book.yaml`). Gutenberg's own header, licence and
+"Produced by …" credits are removed automatically.
 
 ## 3. Split chapters
 

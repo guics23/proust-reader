@@ -19,6 +19,16 @@ def strip_gutenberg(raw: str) -> str:
         text = text[start.end():]
     if end := GUTENBERG_END.search(text):
         text = text[: end.start()]
+    # Older files open with a credits paragraph ("Produced by …").
+    text = re.sub(r"\A\s*Produced by\b.*?(\n\s*\n|\Z)", "\n", text, flags=re.S)
+    return text
+
+
+def remove_patterns(text: str, patterns: list[str]) -> str:
+    """Delete front matter repeated inside the text (e.g. the title block at the
+    top of each part of a volume Gutenberg splits into several ebooks)."""
+    for pat in patterns:
+        text = re.sub(pat, "\n", text, flags=re.M)
     return text
 
 
@@ -35,7 +45,9 @@ def split_chapters(text: str, specs: list[dict], lang: str) -> list[str]:
                 raise PrepError(f"[{lang}] chapter {n} ({spec.get('title')!r}): "
                                 f"heading /{spec['start']}/ not found after offset {pos}")
             pos = match.end()
-        starts.append((match.start(), match.end()))
+        # include: the match is the chapter's first words, not a heading to drop.
+        body_start = match.start() if spec.get("include") else match.end()
+        starts.append((match.start(), body_start))
     bodies = []
     for k, (_, body_start) in enumerate(starts):
         body_end = starts[k + 1][0] if k + 1 < len(starts) else len(text)
@@ -43,18 +55,18 @@ def split_chapters(text: str, specs: list[dict], lang: str) -> list[str]:
     return bodies
 
 
-def paragraphs(body: str) -> list[str]:
+def paragraphs(body: str, lang: str) -> list[str]:
     """Join hard-wrapped lines; paragraphs are separated by blank lines."""
     out = []
     for block in re.split(r"\n\s*\n", body):
         para = re.sub(r"\s+", " ", block).strip()
         # Skip separators such as "* * *" (no letters at all).
         if re.search(r"\w", para):
-            out.append(normalise(para))
+            out.append(normalise(para, lang))
     return out
 
 
-def normalise(s: str) -> str:
+def normalise(s: str, lang: str) -> str:
     s = s.replace(" ", " ").replace(" ", " ")
     s = re.sub(r"\.\.\.", "…", s)
     s = re.sub(r"\s*--\s*", lambda m: "—" if m.start() == 0 else " — ", s)
@@ -62,6 +74,11 @@ def normalise(s: str) -> str:
     # consistent (a non-breaking thin space is restored at render time if wanted).
     s = re.sub(r"\s+([;:!?»])", r"\1", s)
     s = re.sub(r"«\s+", "«", s)
+    # French quotes with « » and “ ”, so a straight ' is always an apostrophe;
+    # use the typographic one, as most editions do. (Not in English, where '
+    # is also a quotation mark.)
+    if lang == "fr":
+        s = s.replace("'", "’")
     return s.strip()
 
 
@@ -127,7 +144,7 @@ class Segmenter:
 def segment_chapter(body: str, lang: str, segmenter: Segmenter) -> list[dict]:
     """Return the chapter's sentences as [{"t": text, "p": paragraph_start}]."""
     sents = []
-    for para in paragraphs(body):
+    for para in paragraphs(body, lang):
         for k, s in enumerate(segmenter.sentences(para)):
             sents.append({"t": s, "p": k == 0})
     if not sents:

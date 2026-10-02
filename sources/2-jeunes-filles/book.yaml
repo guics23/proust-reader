@@ -1,0 +1,41 @@
+# Volume definition. See PREPARING.md for the meaning of each field.
+id: 2-jeunes-filles
+order: 2
+author: Marcel Proust
+translator: C. K. Scott Moncrieff
+title:
+  fr: À l'ombre des jeunes filles en fleurs
+  en: Within a Budding Grove
+
+# Languages in display order: the first one goes in the top half.
+languages: [fr, en]
+
+# Gutenberg publishes the French volume as three ebooks, split at arbitrary
+# points; they are joined in order.
+sources:
+  fr: [fr-1.txt, fr-2.txt, fr-3.txt]
+  en: en.txt
+
+# Removed before splitting into chapters: the title block at the top of each
+# French part (it would otherwise appear mid-chapter), and the English "THE END".
+remove:
+  fr:
+    - '^MARCEL PROUST\s+A L.OMBRE DES JEUNES FILLES EN FLEURS\s+(PREMIÈRE|DEUXIÈME|TROISIÈME) PARTIE$'
+  en:
+    - '^THE END$'
+
+# The French Gutenberg text has no chapter headings, so chapters follow the
+# four titled sections of the English edition; the French starts are found by
+# separators or, for chapter 3, by its first words (`include: true` keeps
+# them in the text). French titles: Proust's two parts are "Autour de
+# Mme Swann" and "Noms de pays : le pays"; the English edition splits the
+# second one in three.
+chapters:
+  - fr: { title: "Autour de Mme Swann", start: '\A' }       # start of the text
+    en: { title: "Madame Swann at Home", start: '^PART I\s+_MADAME SWANN AT HOME_$' }
+  - fr: { title: "Noms de pays : le pays — I", start: '^\.\.\.$' }
+    en: { title: "Place-Names: The Place", start: '^_PLACE-NAMES: THE PLACE_$' }
+  - fr: { title: "Noms de pays : le pays — II", start: '^Le médecin de Balbec appelé', include: true }
+    en: { title: "Place-Names: The Place (continued)", start: '^PART II\s+_PLACE-NAMES: THE PLACE_$' }
+  - fr: { title: "Noms de pays : le pays — III", start: '^\*  \*  \*  \*  \*$' }
+    en: { title: "Seascape, with Frieze of Girls", start: '^_SEASCAPE,\s+WITH FRIEZE OF GIRLS_$' }

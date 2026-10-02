@@ -33,8 +33,9 @@ work/<id>/cache/emb-*.npy                              embeddings, keyed by cont
 public/books/<id>.json, library.json                   build output read by the app
 ```
 
-- `pipeline/text.py` — Gutenberg stripping, chapter split (regex headings
-  from book.yaml), paragraph unwrapping, sentence segmentation (pysbd + our
+- `pipeline/text.py` — Gutenberg stripping (header, licence, credits),
+  `remove:` patterns, chapter split (regex starts from book.yaml, optional
+  `nth`/`include`), paragraph unwrapping, sentence segmentation (pysbd + our
   fix-ups for quotes, dialogue, abbreviations like "Mme." / "M.").
 - `pipeline/align.py` — our own Bertalign-style aligner (Bertalign itself is
   GPL and needs googletrans/faiss/numba; don't add it back). LaBSE vectors,
@@ -89,6 +90,12 @@ breaking for existing readers once the app is in use.
 ## Status
 
 - Done: volume 1 (`1-swann`) aligned and built; no anchors needed.
+- Volume 2 (`2-jeunes-filles`): French comes as 3 Gutenberg ebooks (list of
+  sources), with no chapter headings; chapters follow the English edition's 4
+  sections (see the comments in its book.yaml).
+- Volume 3 (*Le Côté de Guermantes*): the translator moved paragraphs in three
+  places. The aligner is monotonic, so this needs a new book.yaml option to
+  reorder those English paragraphs into French order before aligning.
 - Next: other volumes. Check Gutenberg availability first. The English
   *Time Regained* is a different translator (Stephen Hudson) and may only be
   on Gutenberg Australia.
