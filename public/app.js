@@ -126,8 +126,29 @@ function updateFades(half) {
   half.classList.toggle("more-above", half.scrollTop > 4);
   half.classList.toggle("more-below", more - half.scrollTop > 4);
 }
-el.top.addEventListener("scroll", () => updateFades(el.top), { passive: true });
-el.bottom.addEventListener("scroll", () => updateFades(el.bottom), { passive: true });
+// Scrolling one half scrolls the other to the same point of its own text, so
+// both reach their bottoms together however unequal the two pages are.
+// `driver` ignores the scroll event our own write provokes in the other half;
+// it is released on the next frame (scroll events are dispatched before
+// animation callbacks).
+let driver = null, driverFrame = 0;
+function syncScroll(src, dst) {
+  if (driver && driver !== src) return;
+  driver = src;
+  if (!driverFrame) {
+    driverFrame = requestAnimationFrame(() => { driver = null; driverFrame = 0; });
+  }
+  const srcMax = src.scrollHeight - src.clientHeight;
+  const dstMax = Math.max(dst.scrollHeight - dst.clientHeight, 0);
+  const target = srcMax > 0 ? (src.scrollTop / srcMax) * dstMax : 0;
+  if (Math.abs(dst.scrollTop - target) > 0.5) {
+    dst.scrollTop = target;
+    updateFades(dst);
+  }
+}
+
+el.top.addEventListener("scroll", () => { updateFades(el.top); syncScroll(el.top, el.bottom); }, { passive: true });
+el.bottom.addEventListener("scroll", () => { updateFades(el.bottom); syncScroll(el.bottom, el.top); }, { passive: true });
 window.addEventListener("resize", () => { if (book) { updateFades(el.top); updateFades(el.bottom); } });
 
 function applyPrefs() {
